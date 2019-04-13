@@ -8,8 +8,13 @@ class UDPServer:
         serverSocket = socket(AF_INET, SOCK_DGRAM)
         serverSocket.bind(('', rcvPort))
         while True:
-            message, address = serverSocket.recvfrom(2048)
-            print(message.decode())
+            buffer = bytearray()
+            message, address = serverSocket.recvfrom(1024)
+            while message[-1] != ord('\n'):
+                buffer = buffer + message
+                message, address = serverSocket.recvfrom(1024)
+            buffer = buffer + message
+            print(buffer.decode(), end='', flush=True)
             serverSocket.sendto('success'.encode(), address)
         serverSocket.close()
 
