@@ -16,8 +16,6 @@ class UDPClient:
                 clientsocket.sendto(buffer.encode(), (servername, serverport))
                 i = i + 64
                 size = size - 64
-            # if size > 0:
-            #     clientsocket.sendto(message[i:].encode(), (servername, serverport))
         modifiedMessage, addr = clientsocket.recvfrom(1024)
         print(modifiedMessage.decode())
         clientsocket.close()
