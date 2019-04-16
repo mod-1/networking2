@@ -1,14 +1,16 @@
 from socket import *
 import sys
 import zlib
+import time
 
 
 class UDPClient:
 
-    def start(self, unreliNetPort):
+    def start(self, unreliNetPort, start):
         servername = 'localhost'
         serverport = unreliNetPort
         clientsocket = socket(AF_INET, SOCK_DGRAM)
+        clientsocket.settimeout(0.15)
         seq_no = '0'
         message = sys.stdin.read()
         size = len(message.encode())
@@ -19,13 +21,18 @@ class UDPClient:
             buffer = length + checksum + buffer
             clientsocket.sendto(buffer.encode(), (servername, serverport))
             print('message sent: ' + buffer)
-            modifiedMessage, addr = clientsocket.recvfrom(1024)
+            try:
+                modifiedMessage, addr = clientsocket.recvfrom(1024)
+            except timeout:
+                continue
             print('response recieved: ' + modifiedMessage.decode())
             if self.parse_response(modifiedMessage.decode(), seq_no):
                 i = i + 50
                 size = size - 50
                 seq_no = self.compliment_seqn(seq_no)
         clientsocket.close()
+        end = time.time()
+        print(end-start)
 
     def gen_checksum(self, bytes):
         checksum = zlib.crc32(bytes)
@@ -54,5 +61,6 @@ class UDPClient:
 
 
 if __name__ == '__main__':
+    start = time.time()
     myclient = UDPClient()
-    myclient.start(int(sys.argv[1]))
+    myclient.start(int(sys.argv[1]), start)

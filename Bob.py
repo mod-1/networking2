@@ -23,21 +23,14 @@ class UDPServer:
     def parse_message(self, message, sqn):
         if message[0:2].isdigit():
             length = int(message[0:2])
-            # print('length: ' + message[0:2])
             checksum = message[2:2+length]
-            # print('checksum: ' + checksum)
             message_actual = message[2+length:]
-            # print('message_actual: ' + message_actual)
             chksm = zlib.crc32(message_actual.encode())
-            # print('chksm: ' + str(chksm))
             seq_no = message_actual[0]
-            # print(seq_no + '   ' + sqn)
             if str(chksm) == checksum and seq_no == sqn:
-                # print('valid message')
                 res_checksum, req_chksum_len = self.gen_checksum(('ACK'+sqn).encode())
                 res = req_chksum_len + res_checksum + 'ACK' + sqn
                 return True, res, message_actual[1:]
-        # print('invalid message')
         res_checksum, req_chksum_len = self.gen_checksum(('ACK' + self.compliment_seqn(sqn)).encode())
         res = req_chksum_len + res_checksum + 'ACK' + self.compliment_seqn(sqn)
         return False, res, ''
