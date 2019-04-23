@@ -10,7 +10,7 @@ class UDPClient:
         servername = 'localhost'
         serverport = unreliNetPort
         clientsocket = socket(AF_INET, SOCK_DGRAM)
-        clientsocket.settimeout(0.15)
+        clientsocket.settimeout(0.05)
         seq_no = '0'
         message = sys.stdin.read()
         size = len(message.encode())
@@ -25,7 +25,7 @@ class UDPClient:
                 modifiedMessage, addr = clientsocket.recvfrom(1024)
             except timeout:
                 continue
-            print('response recieved: ' + modifiedMessage.decode())
+            print('response received: '.encode() + modifiedMessage)
             if self.parse_response(modifiedMessage.decode(), seq_no):
                 i = i + 50
                 size = size - 50

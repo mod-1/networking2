@@ -7,17 +7,19 @@ class UDPServer:
 
     def start(self, rcvPort):
         serverSocket = socket(AF_INET, SOCK_DGRAM)
+        serverSocket.settimeout(0.2)
         serverSocket.bind(('', rcvPort))
         seq_no = '0'
         while True:
-            message, address = serverSocket.recvfrom(1024)
-            # print('message received: ' + message.decode())
-            valid, res, msg_actual = self.parse_message(message.decode(), seq_no)
-            if valid:
-                print(msg_actual, end='', flush=True)
-                seq_no = self.compliment_seqn(seq_no)
-            serverSocket.sendto(res.encode(), address)
-            # print('response sent: ' + res)
+            try:
+                message, address = serverSocket.recvfrom(1024)
+                valid, res, msg_actual = self.parse_message(message.decode(), seq_no)
+                if valid:
+                    print(msg_actual, end='', flush=True)
+                    seq_no = self.compliment_seqn(seq_no)
+                serverSocket.sendto(res.encode(), address)
+            except timeout:
+                seq_no = '0'
         serverSocket.close()
 
     def parse_message(self, message, sqn):
